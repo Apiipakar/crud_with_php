@@ -15,14 +15,17 @@
     />
   </head>
   <body>
-    <div class="container w-[80%] m-auto py-5">
+    <div class="container w-[98%] sm:w-[95%] md:w-[80%] m-auto py-5">
       <button
         class="addMode_btn px-3 py-1 rounded bg-blue-500 text-white border border-blue-500 hover:bg-blue-600 font-medium"
       >
         Add User
       </button>
-
-      <!-- add Mode -->
+      <!-- database table -->
+      <div class="table_container">
+        
+      </div>
+      <!---------------------------------- add Model -------------------------->
       <div
         class="Add_model w-full h-screen absolute left-0 top-0 hidden items-center justify-center"
       >
@@ -41,7 +44,7 @@
           </div>
 
           <div class="form_Group flex flex-col capitalize gap-2">
-            <label for="fullnae">fullname</label>
+            <label for="fullname">fullname</label>
             <input
               type="text"
               id="fullnameText"
@@ -78,15 +81,79 @@
           </div>
           <button
             class="p-2 border border-slate-200 rounded w-full my-2 hover:bg-slate-100 duration-100 ease-in font-medium"
-            onclick="saveUser()"
+            onclick="Handleform()"
           >
             Submit
+          </button>
+        </div>
+      </div>
+      <!-- -------------------------------------Update Model ------------------------- -->
+      <div class="updateModel w-full h-screen absolute left-0 top-0  items-center justify-center flex">
+        
+        <div class="layer bg-black opacity-10 h-full w-full absolute">
+        </div>
+        <div class="update_Form lg:w-1/3 md:w-1/3 w-11/12 m-auto bg-white h-max z-10 py-5 px-2 md:px-5 rounded shadow-md border-slate-400">
+          <div class="flex item-center justify-between my-3">
+            <h2 class="text-[25px] text-gray-500">Update User</h2>
+            <i id="closeUpdateModel"
+              class="fa-solid fa-close p-4 hover:bg-slate-100 rounded-full cursor-pointer"
+            ></i>
+          </div>
+          <!-- fullname update -->
+          <div class="form_Group flex flex-col capitalize gap-2">
+            <label for="UpdatefullnameText">fullname</label>
+            <input
+              type="text"
+              id="UpdatefullnameText"
+              class="p-2 rounded border border-slate-200 outline-none hover:border hover:border-slate-300"
+            />
+            <span class="text-[12px] text-red-500 font-bold"></span>
+          </div>
+          <!-- username update -->
+          <div class="form_Group flex flex-col capitalize gap-2">
+            <label for="UpdateusernameText">username</label>
+            <input
+              type="text"
+              id="UpdateusernameText"
+              class="p-2 rounded border border-slate-200 outline-none hover:border hover:border-slate-300"
+            />
+            <span class="text-[12px] text-red-500 font-bold"></span>
+          </div>
+          <!-- email update -->
+          <div class="form_Group flex flex-col capitalize gap-2">
+            <label for="UpdateemailText">email</label>
+            <input
+              type="text"
+              id="UpdateemailText"
+              class="p-2 rounded border border-slate-200 outline-none hover:border hover:border-slate-300"
+            />
+            <span class="text-[12px] text-red-500 font-bold"></span>
+          </div>
+          <!-- passowrd update -->
+          <div class="form_Group flex flex-col capitalize gap-2">
+            <label for="UpdatepassowrdText">passowrd</label>
+            <input
+              type="password"
+              id="UpdatepasswordText"
+              class="p-2 rounded border border-slate-200 outline-none hover:border hover:border-slate-300"
+            />
+            <span class="text-[12px] text-red-500 font-bold"></span>
+          </div>
+          <button 
+          id="updateButton"
+            class="p-2 border border-slate-200 rounded w-full my-2 hover:bg-slate-100 duration-100 ease-in font-medium"
+          >
+            Update
           </button>
         </div>
       </div>
     </div>
     <!-- jquery script -->
     <script>
+
+      $(document).ready(()=>{
+        loadUser();
+      });
       // show up add model.
       $(".addMode_btn").click(() => {
         $(".Add_model").removeClass("hidden");
@@ -104,16 +171,16 @@
       let username = $("#usernameText");
       let email = $("#emailText");
       let password = $("#passwordText");
-      //   let fullname = document.getElementById("fullnameText");
-      //   let username = document.getElementById("usernameText");
-      //   let email = document.getElementById("emailText");
-      //   let password = document.getElementById("passwordText");
-      //   save user to database
-      const saveUser = () => {
+      
+      //   handle userinputs.
+      const Handleform = () => {
         // check all input fields.
         checkInputs([fullname, username, email, password]);
         // check email input field.
         checkEmail(email);
+
+        saveUser()  
+        
       };
 
       //check email input field
@@ -121,7 +188,6 @@
         // showError(element, "Email is required");
         let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         // let emailRegex =
-        //   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
         if (!emailRegex.test(element.val().trim())) {
           showError(element, "please enter a valid email");
         }
@@ -132,10 +198,13 @@
           if (element.val() === "") {
             showError(element, "input required");
           } else {
-            showSuccess(element);
+            // showSuccess(element);
+            
+            console.log('all fileds are set');
           }
         });
       };
+      // ----------------------------------------------------------------------------
       // show errMessage
       const showError = (input, message) => {
         input.removeClass("border-slate-200");
@@ -147,13 +216,116 @@
           input.removeClass("border-red-500");
           input.addClass("border-slate-200");
         }, 5000);
-        console.log(curentInput);
+        // console.log(curentInput);
       };
-      //   show SuccessMessage
-      const showSuccess = (input) => {
-        input.removeClass("border-slate-200");
-        input.addClass("border-green-200");
-      };
+
+      // ------------------------------------save user----------------------------------
+      
+      function saveUser(){
+        $.ajax({
+          method: "POST",
+          url: "insert.php",
+          data:{fullnameText: fullname.val(), usernameText: username.val(), emailText: email.val(), passwordText: password.val()},
+          success: (res)=>{
+            loadUser();
+            fullname.val('') ;
+            username.val('') ;
+            email.val('') ;
+            password.val('') ;
+          }
+        });
+      }
+
+      // --------------------------------load user from database----------------------------------
+      
+      function loadUser(){
+        let loadUser = true;
+        $.ajax({
+          method:"POST",
+          dataType:'html',
+          url: "display.php",
+          data:{loadUser:loadUser},
+          success: (table)=>{ 
+            // console.log(table);
+            $('.table_container').html(table);
+          },
+          error: (error)=>{
+            console.log(error);
+          }
+        })
+      }
+
+
+      // -----------------------------delete user.------------------------------
+      
+      function deleteUser(id){
+        // console.log(id)
+        let userId = id;
+        let deleteUser = true;
+        $.ajax({
+          method:"post",
+          url:"delete.php",
+          data:{userId:userId,deleteUser:deleteUser},
+          success(response){
+            console.log(response);
+            loadUser();
+          },
+          error: (error)=>{
+            console.log(error);
+          }
+        })
+      }
+      $('.updateModel').hide();
+      // -------------------------------Edit user.------------------------------
+      function editUser(id){
+        // console.log(id);
+        let userId = id;
+        let updateUser  = true;
+        $('.updateModel').show();
+        $('#closeUpdateModel').click(()=>{
+          $('.updateModel').hide();
+        })
+        $.ajax({
+          method:"post",
+          url:"edit.php",
+          data:{userId:userId,updateUser:updateUser},
+          success:function(data){
+            let user = JSON.parse(data)
+            // console.log(user)
+            // fill update inputs.
+            $('#UpdatefullnameText').val(user.fullname);
+            $('#UpdateusernameText').val(user.username);
+            $('#UpdateemailText').val(user.email);
+            $('#UpdatepasswordText').val(user.password);
+
+            $('#updateButton').click(()=>{
+            let fullnameUpdate =  $('#UpdatefullnameText').val();
+            let usernameUpdate =  $('#UpdateusernameText').val();
+            let emailUpdate =  $('#UpdateemailText').val();
+            let passwordUpdate =  $('#UpdatepasswordText').val();
+              console.log(fullnameUpdate);
+              $.ajax({
+                method:"post",
+                url:"update.php",
+                data:{userId:userId,updateUser:updateUser,fullname:fullnameUpdate,username:usernameUpdate,email:emailUpdate,password:passwordUpdate},
+                success:function(data){
+                  console.log(data);
+                  loadUser()
+                },
+                error:function(error){
+                  console.log(error);
+                }
+              })
+            })
+          },
+          error:function(error){
+            console.log(error);
+          }
+        })
+      }
+
+
+            
     </script>
   </body>
 </html>
